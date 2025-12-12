@@ -7,13 +7,13 @@ import 'package:tinder_clone/Models/Message.dart';
 class InChatScreen extends StatefulWidget {
   ChatUser user;
 
-  InChatScreen({@required this.user});
+  InChatScreen({required this.user});
   @override
   _InChatScreenState createState() => _InChatScreenState();
 }
 
 class _InChatScreenState extends State<InChatScreen> {
-  TextEditingController _messageController;
+  late TextEditingController _messageController;
   @override
   void initState() {
     super.initState();
@@ -37,7 +37,7 @@ class _InChatScreenState extends State<InChatScreen> {
                   return LinearGradient(
                       colors: [
                         Theme.of(context).primaryColor,
-                        Theme.of(context).accentColor
+                        Theme.of(context).colorScheme.secondary
                       ],
                       begin: Alignment.topRight,
                       end: Alignment.bottomLeft,
@@ -54,7 +54,7 @@ class _InChatScreenState extends State<InChatScreen> {
                 return LinearGradient(
                     colors: [
                       Theme.of(context).primaryColor,
-                      Theme.of(context).accentColor
+                      Theme.of(context).colorScheme.secondary
                     ],
                     begin: Alignment.topRight,
                     end: Alignment.bottomLeft,

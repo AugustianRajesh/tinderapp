@@ -103,7 +103,7 @@ class _ProfileTabState extends State<ProfileTab> {
                                         decoration: new BoxDecoration(
                                             gradient: new LinearGradient(
                                                 colors: [
-                                                  Theme.of(context).accentColor,
+                                                  Theme.of(context).colorScheme.secondary,
                                                   Theme.of(context)
                                                       .secondaryHeaderColor,
                                                   Theme.of(context).primaryColor
@@ -151,7 +151,7 @@ class _ProfileTabState extends State<ProfileTab> {
                                     child: Center(
                                       child: new Icon(
                                         Icons.add,
-                                        color: Theme.of(context).accentColor,
+                                        color: Theme.of(context).colorScheme.secondary,
                                       ),
                                     ),
                                   ),
@@ -199,70 +199,69 @@ class _ProfileTabState extends State<ProfileTab> {
         ),
         new Positioned(
             bottom: ScreenUtil().setHeight(80.0),
-            child: new Container(
+            child: Container(
               height: ScreenUtil().setHeight(350),
               width: MediaQuery.of(context).size.width,
-              child: new CarouselSlider(
-                height: ScreenUtil().setHeight(300),
-                aspectRatio: 16 / 2,
-                viewportFraction: 0.8,
-                enableInfiniteScroll: true,
-                autoPlayAnimationDuration: Duration(milliseconds: 800),
-                autoPlayInterval: Duration(seconds: 2),
-                autoPlayCurve: Curves.fastOutSlowIn,
-                autoPlay: true,
-                enlargeCenterPage: true,
-                pauseAutoPlayOnTouch: Duration(seconds: 5),
-                items: [0, 1, 2, 3, 4, 5].map((i) {
-                  return Builder(
-                    builder: (context) {
-                      return Container(
-                        width: ScreenUtil().setWidth(900.0),
-                        height: ScreenUtil().setHeight(180),
-                        margin: EdgeInsets.all(5.0),
-                        decoration: new BoxDecoration(
-                            color: Colors.white,
-                            border: new Border.all(
-                                color: Theme.of(context).primaryColor,
-                                width: 2),
-                            boxShadow: [
-                              new BoxShadow(
-                                  color: Colors.grey,
-                                  offset: new Offset(0.0, 5.0),
-                                  blurRadius: 10.0)
-                            ],
-                            borderRadius: BorderRadius.circular(10.0)),
-                        child: new Center(
-                            child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            new Text(
-                              quotes[i].heading,
-                              textAlign: TextAlign.center,
-                              style: new TextStyle(
-                                  fontSize: ScreenUtil().setSp(65.0),
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.black54),
-                            ),
-                            new SizedBox(
-                              height: ScreenUtil().setHeight(15.0),
-                            ),
-                            new Text(
-                              quotes[i].baseline,
-                              textAlign: TextAlign.center,
-                              style: new TextStyle(
-                                  fontSize: ScreenUtil().setSp(40.0),
-                                  fontWeight: FontWeight.w300,
-                                  color: Colors.black54),
-                            ),
-                          ],
-                        )),
-                      );
-                    },
+              child: CarouselSlider.builder(
+                itemCount: 6,
+                options: CarouselOptions(
+                  height: ScreenUtil().setHeight(300),
+                  aspectRatio: 16 / 2,
+                  viewportFraction: 0.8,
+                  enableInfiniteScroll: true,
+                  autoPlayAnimationDuration: Duration(milliseconds: 800),
+                  autoPlayInterval: Duration(seconds: 2),
+                  autoPlayCurve: Curves.fastOutSlowIn,
+                  autoPlay: true,
+                  enlargeCenterPage: true,
+                  pauseAutoPlayOnTouch: true,
+                ),
+                itemBuilder: (context, i, realIndex) {
+                  return Container(
+                    width: ScreenUtil().setWidth(900.0),
+                    height: ScreenUtil().setHeight(180),
+                    margin: EdgeInsets.all(5.0),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(
+                            color: Theme.of(context).primaryColor,
+                            width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.grey,
+                              offset: Offset(0.0, 5.0),
+                              blurRadius: 10.0)
+                        ],
+                        borderRadius: BorderRadius.circular(10.0)),
+                    child: Center(
+                        child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Text(
+                          quotes[i].heading,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: ScreenUtil().setSp(65.0),
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black54),
+                        ),
+                        SizedBox(
+                          height: ScreenUtil().setHeight(15.0),
+                        ),
+                        Text(
+                          quotes[i].baseline,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: ScreenUtil().setSp(40.0),
+                              fontWeight: FontWeight.w300,
+                              color: Colors.black54),
+                        ),
+                      ],
+                    )),
                   );
-                }).toList(),
+                },
               ),
             ))
       ],

@@ -12,9 +12,9 @@ class MessagesTab extends StatefulWidget {
 }
 
 class _MessagesTabState extends State<MessagesTab> {
-  bool _messagesSelected;
+  late bool _messagesSelected;
   bool _firstVistToFeed = false;
-  TextEditingController _fieldController;
+  late TextEditingController _fieldController;
 
   @override
   void initState() {
@@ -127,7 +127,7 @@ class _MessagesTabState extends State<MessagesTab> {
                   ),
                   new Divider(
                     height: 1.0,
-                    color: Theme.of(context).accentColor,
+                    color: Theme.of(context).colorScheme.secondary,
                     indent: ScreenUtil().setWidth(120.0),
                     endIndent: ScreenUtil().setWidth(30.0),
                   ),

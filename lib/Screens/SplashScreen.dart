@@ -24,15 +24,16 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context) ;
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: new Center(
-        child: new Image(
-          width: ScreenUtil().setWidth(200.0),
-          height: ScreenUtil().setHeight(200.0),
-          image: new AssetImage('assets/images/tinder_logo.png'),
+    return ScreenUtilInit(
+      designSize: Size(750, 1334),
+      builder: (context, child) => Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: Image(
+            width: ScreenUtil().setWidth(200.0),
+            height: ScreenUtil().setHeight(200.0),
+            image: AssetImage('assets/images/tinder_logo.png'),
+          ),
         ),
       ),
     );

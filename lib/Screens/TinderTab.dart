@@ -2,45 +2,81 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_tindercard/flutter_tindercard.dart';
+import 'package:appinio_swiper/appinio_swiper.dart';
 import 'package:tinder_clone/Models/PeopleList.dart';
 import 'package:tinder_clone/Widgets/MatchCard.dart';
+import 'package:tinder_clone/Services/api_service.dart';
 
 class TinderTab extends StatefulWidget {
   @override
   _TinderTabState createState() => _TinderTabState();
 }
 
-class _TinderTabState extends State<TinderTab>
-    with SingleTickerProviderStateMixin {
+class _TinderTabState extends State<TinderTab> {
   bool chng = true;
   bool atCenter = true;
   bool _triggerNotFound = false;
   bool _timeout = false;
-  CardController _cardController;
+  late AppinioSwiperController _cardController;
+  int currentIndex = 0;
+  
+  bool _isLoading = true;
+  List<MatchCard> _peoples = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _cardController = AppinioSwiperController();
+    _loadUsers();
+  }
+  
+  void _loadUsers() async {
+    // Fetch from API
+    List<MatchCard> users = await ApiService.fetchUsers();
+    
+    setState(() {
+      // If API returns empty, fallback to static list
+      if (users.isEmpty) {
+        _peoples = peoples; 
+      } else {
+        _peoples = users;
+      }
+      _isLoading = false;
+    });
+  }
+
+  @override
+  void dispose() {
+    _cardController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
     return Stack(
       children: <Widget>[
-        new AnimatedContainer(
-          duration: new Duration(milliseconds: 600),
+        AnimatedContainer(
+          duration: Duration(milliseconds: 600),
           curve: Curves.fastLinearToSlowEaseIn,
           color: !atCenter
               ? chng ? Colors.pinkAccent.shade200 : Colors.tealAccent.shade200
               : Colors.blue.shade50,
-          child: new Center(
+          child: Center(
             child: _triggerNotFound
                 ? !_timeout
                     ? Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          new CircularProgressIndicator(),
-                          new SizedBox(
+                          CircularProgressIndicator(),
+                          SizedBox(
                             height: ScreenUtil().setHeight(30.0),
                           ),
-                          new Text(
+                          Text(
                             "Searching nearby matchings ...",
-                            style: new TextStyle(
+                            style: TextStyle(
                                 fontSize: ScreenUtil().setSp(60.0),
                                 fontWeight: FontWeight.w200,
                                 color: Colors.grey.shade600),
@@ -50,27 +86,27 @@ class _TinderTabState extends State<TinderTab>
                     : Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
-                          new SizedBox(
+                          SizedBox(
                             height: ScreenUtil().setHeight(550.0),
                           ),
-                          new ClipRRect(
+                          ClipRRect(
                             borderRadius: BorderRadius.circular(100.0),
-                            child: new Image(
+                            child: Image(
                                 width: ScreenUtil().setWidth(400),
                                 height: ScreenUtil().setWidth(400),
                                 fit: BoxFit.cover,
                                 image:
-                                    new AssetImage('assets/images/abhishekProfile.JPG')),
+                                    AssetImage('assets/images/abhishekProfile.JPG')),
                           ),
-                          new SizedBox(
+                          SizedBox(
                             height: ScreenUtil().setHeight(40.0),
                           ),
-                          new Padding(
+                          Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: ScreenUtil().setWidth(60.0)),
-                            child: new Text("There is no one new around you ...",
+                            child: Text("There is no one new around you ...",
                                 textAlign: TextAlign.center,
-                                style: new TextStyle(
+                                style: TextStyle(
                                     wordSpacing: 1.2,
                                     fontSize: ScreenUtil().setSp(55.0),
                                     fontWeight: FontWeight.w300,
@@ -81,36 +117,36 @@ class _TinderTabState extends State<TinderTab>
                 : Container(),
           ),
         ),
-        new Positioned(
+        Positioned(
           bottom: 0.0,
-          child: new Container(
+          child: Container(
             height: ScreenUtil().setWidth(220.0),
             width: MediaQuery.of(context).size.width,
-            child: new Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                new Container(
+                Container(
                   padding: EdgeInsets.all(ScreenUtil().setWidth(15.0)),
                   height: ScreenUtil().setHeight(80.0),
                   width: ScreenUtil().setHeight(80.0),
-                  decoration: new BoxDecoration(
+                  decoration: BoxDecoration(
                       boxShadow: [
-                        new BoxShadow(
-                            offset: new Offset(0.0, 0.0), color: Colors.grey),
-                        new BoxShadow(
-                            offset: new Offset(1.0, 1.0),
+                        BoxShadow(
+                            offset: Offset(0.0, 0.0), color: Colors.grey),
+                        BoxShadow(
+                            offset: Offset(1.0, 1.0),
                             color: Colors.grey,
                             blurRadius: 5.0),
-                        new BoxShadow(
-                            offset: new Offset(-1.0, -1.0),
+                        BoxShadow(
+                            offset: Offset(-1.0, -1.0),
                             color: Colors.white,
                             blurRadius: 10.0)
                       ],
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(60.0)),
-                  child: new ShaderMask(
-                      child: new Image(
-                          image: new AssetImage('assets/images/round.png')),
+                  child: ShaderMask(
+                      child: Image(
+                          image: AssetImage('assets/images/round.png')),
                       blendMode: BlendMode.srcATop,
                       shaderCallback: (Rect bounds) {
                         return LinearGradient(
@@ -123,61 +159,66 @@ class _TinderTabState extends State<TinderTab>
                             stops: [0.0, 1.0]).createShader(bounds);
                       }),
                 ),
-                new Container(
-                  padding: EdgeInsets.all(ScreenUtil().setSp(30.0)),
-                  height: ScreenUtil().setHeight(110.0),
-                  width: ScreenUtil().setHeight(110.0),
-                  decoration: new BoxDecoration(
-                      boxShadow: [
-                        new BoxShadow(
-                            offset: new Offset(0.0, 0.0), color: Colors.grey),
-                        new BoxShadow(
-                            offset: new Offset(1.0, 1.0),
-                            color: Colors.grey,
-                            blurRadius: 5.0),
-                        new BoxShadow(
-                            offset: new Offset(-1.0, -1.0),
-                            color: Colors.white,
-                            blurRadius: 10.0)
-                      ],
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(60.0)),
-                  child: new ShaderMask(
-                      child: new Image(
-                        image: AssetImage('assets/images/closeRounded.png'),
-                      ),
-                      blendMode: BlendMode.srcATop,
-                      shaderCallback: (Rect bounds) {
-                        return LinearGradient(
-                            colors: [
-                              Theme.of(context).accentColor,
-                              Theme.of(context).primaryColor
-                            ],
-                            begin: Alignment.topRight,
-                            end: Alignment.bottomLeft,
-                            stops: [0.0, 1.0]).createShader(bounds);
-                      }),
+                GestureDetector(
+                  onTap: () {
+                    _cardController.swipeLeft();
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(ScreenUtil().setSp(30.0)),
+                    height: ScreenUtil().setHeight(110.0),
+                    width: ScreenUtil().setHeight(110.0),
+                    decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                              offset: Offset(0.0, 0.0), color: Colors.grey),
+                          BoxShadow(
+                              offset: Offset(1.0, 1.0),
+                              color: Colors.grey,
+                              blurRadius: 5.0),
+                          BoxShadow(
+                              offset: Offset(-1.0, -1.0),
+                              color: Colors.white,
+                              blurRadius: 10.0)
+                        ],
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(60.0)),
+                    child: ShaderMask(
+                        child: Image(
+                          image: AssetImage('assets/images/closeRounded.png'),
+                        ),
+                        blendMode: BlendMode.srcATop,
+                        shaderCallback: (Rect bounds) {
+                          return LinearGradient(
+                              colors: [
+                                Theme.of(context).colorScheme.secondary,
+                                Theme.of(context).primaryColor
+                              ],
+                              begin: Alignment.topRight,
+                              end: Alignment.bottomLeft,
+                              stops: [0.0, 1.0]).createShader(bounds);
+                        }),
+                  ),
                 ),
-                new Container(
+                Container(
                   height: ScreenUtil().setHeight(80.0),
                   width: ScreenUtil().setHeight(80.0),
-                  decoration: new BoxDecoration(
+                  decoration: BoxDecoration(
                       boxShadow: [
-                        new BoxShadow(
-                            offset: new Offset(0.0, 0.0), color: Colors.grey),
-                        new BoxShadow(
-                            offset: new Offset(1.0, 1.0),
+                        BoxShadow(
+                            offset: Offset(0.0, 0.0), color: Colors.grey),
+                        BoxShadow(
+                            offset: Offset(1.0, 1.0),
                             color: Colors.grey,
                             blurRadius: 5.0),
-                        new BoxShadow(
-                            offset: new Offset(-1.0, -1.0),
+                        BoxShadow(
+                            offset: Offset(-1.0, -1.0),
                             color: Colors.white,
                             blurRadius: 10.0)
                       ],
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(60.0)),
-                  child: new ShaderMask(
-                      child: new Icon(
+                  child: ShaderMask(
+                      child: Icon(
                         Icons.star,
                         size: ScreenUtil().setHeight(65.0),
                       ),
@@ -193,64 +234,69 @@ class _TinderTabState extends State<TinderTab>
                             stops: [0.0, 1.0]).createShader(bounds);
                       }),
                 ),
-                new Container(
-                  padding: EdgeInsets.all(ScreenUtil().setSp(30.0)),
-                  height: ScreenUtil().setHeight(110.0),
-                  width: ScreenUtil().setHeight(110.0),
-                  decoration: new BoxDecoration(
-                      boxShadow: [
-                        new BoxShadow(
-                            offset: new Offset(0.0, 0.0), color: Colors.grey),
-                        new BoxShadow(
-                            offset: new Offset(1.0, 1.0),
-                            color: Colors.grey,
-                            blurRadius: 5.0),
-                        new BoxShadow(
-                            offset: new Offset(-1.0, -1.0),
-                            color: Colors.white,
-                            blurRadius: 10.0)
-                      ],
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(60.0)),
-                  child: new ShaderMask(
-                      child: new Icon(
-                        Icons.favorite,
-                        size: ScreenUtil().setHeight(65.0),
-                      ),
-                      blendMode: BlendMode.srcATop,
-                      shaderCallback: (Rect bounds) {
-                        return LinearGradient(
-                            colors: [
-                              Colors.tealAccent.shade700,
-                              Colors.tealAccent.shade200
-                            ],
-                            begin: Alignment.topRight,
-                            end: Alignment.bottomLeft,
-                            stops: [0.0, 1.0]).createShader(bounds);
-                      }),
+                GestureDetector(
+                  onTap: () {
+                    _cardController.swipeRight();
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(ScreenUtil().setSp(30.0)),
+                    height: ScreenUtil().setHeight(110.0),
+                    width: ScreenUtil().setHeight(110.0),
+                    decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                              offset: Offset(0.0, 0.0), color: Colors.grey),
+                          BoxShadow(
+                              offset: Offset(1.0, 1.0),
+                              color: Colors.grey,
+                              blurRadius: 5.0),
+                          BoxShadow(
+                              offset: Offset(-1.0, -1.0),
+                              color: Colors.white,
+                              blurRadius: 10.0)
+                        ],
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(60.0)),
+                    child: ShaderMask(
+                        child: Icon(
+                          Icons.favorite,
+                          size: ScreenUtil().setHeight(65.0),
+                        ),
+                        blendMode: BlendMode.srcATop,
+                        shaderCallback: (Rect bounds) {
+                          return LinearGradient(
+                              colors: [
+                                Colors.tealAccent.shade700,
+                                Colors.tealAccent.shade200
+                              ],
+                              begin: Alignment.topRight,
+                              end: Alignment.bottomLeft,
+                              stops: [0.0, 1.0]).createShader(bounds);
+                        }),
+                  ),
                 ),
-                new Container(
+                Container(
                   padding: EdgeInsets.all(ScreenUtil().setWidth(15.0)),
                   height: ScreenUtil().setHeight(80.0),
                   width: ScreenUtil().setHeight(80.0),
-                  decoration: new BoxDecoration(
+                  decoration: BoxDecoration(
                       boxShadow: [
-                        new BoxShadow(
-                            offset: new Offset(0.0, 0.0), color: Colors.grey),
-                        new BoxShadow(
-                            offset: new Offset(1.0, 1.0),
+                        BoxShadow(
+                            offset: Offset(0.0, 0.0), color: Colors.grey),
+                        BoxShadow(
+                            offset: Offset(1.0, 1.0),
                             color: Colors.grey,
                             blurRadius: 5.0),
-                        new BoxShadow(
-                            offset: new Offset(-1.0, -1.0),
+                        BoxShadow(
+                            offset: Offset(-1.0, -1.0),
                             color: Colors.white,
                             blurRadius: 10.0)
                       ],
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(60.0)),
-                  child: new ShaderMask(
-                      child: new Image(
-                          image: new AssetImage('assets/images/lighting.png')),
+                  child: ShaderMask(
+                      child: Image(
+                          image: AssetImage('assets/images/lighting.png')),
                       blendMode: BlendMode.srcATop,
                       shaderCallback: (Rect bounds) {
                         return LinearGradient(
@@ -267,56 +313,47 @@ class _TinderTabState extends State<TinderTab>
             ),
           ),
         ),
-        new Align(
-            alignment: Alignment.topCenter,
-            child: new TinderSwapCard(
-              animDuration: 800,
-              orientation: AmassOrientation.TOP,
-              totalNum: peoples.length,
-              stackNum: 3,
-              swipeEdge: 10.0,
-              maxWidth: MediaQuery.of(context).size.width - 10.0,
-              maxHeight: MediaQuery.of(context).size.height * 0.74,
-              minWidth: MediaQuery.of(context).size.width - 50.0,
-              minHeight: MediaQuery.of(context).size.height * 0.73,
-              cardBuilder: (context, index) {
-                return peoples[index];
+        Align(
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.74,
+            child: AppinioSwiper(
+              controller: _cardController,
+              cardCount: _peoples.length,
+              cardBuilder: (BuildContext context, int index) {
+                return _peoples[index];
               },
-              cardController: _cardController,
-              swipeUpdateCallback:
-                  (DragUpdateDetails details, Alignment align) {
-                /// Get swiping card's alignment
-                if (align.x < 0) {
-                  //Card is LEFT swiping
-                  print("Left align " + align.x.toString());
+              onEnd: () {
+                // Called when all cards have been swiped
+                setState(() {
+                  _triggerNotFound = true;
+                  Future.delayed(Duration(seconds: 5), () {
+                    _timeout = true;
+                    setState(() {});
+                  });
+                });
+              },
+              onCardPositionChanged: (SwiperPosition position) {
+                // Track swipe direction for background color change
+                if (position.offset.dx < -20) {
                   setState(() {
-                    if (align.x < -1) atCenter = false;
+                    atCenter = false;
                     chng = true;
                   });
-                } else if (align.x > 0) {
-                  //Card is RIGHT swiping
-                  print("right align " + align.x.toString());
+                } else if (position.offset.dx > 20) {
                   setState(() {
-                    if (align.x > 1) atCenter = false;
+                    atCenter = false;
                     chng = false;
+                  });
+                } else {
+                  setState(() {
+                    atCenter = true;
                   });
                 }
               },
-              swipeCompleteCallback:
-                  (CardSwipeOrientation orientation, int index) {
-                /// Get orientation & index of swiped card!
-                setState(() {
-                  atCenter = true;
-                  if (index == peoples.length - 1) {
-                    _triggerNotFound = true;
-                    Future.delayed(Duration(seconds: 5), () {
-                      _timeout = true;
-                      setState(() {});
-                    });
-                  }
-                });
-              },
-            )),
+            ),
+          ),
+        ),
       ],
     );
   }

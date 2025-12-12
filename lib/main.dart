@@ -13,7 +13,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Color.fromRGBO(253, 41, 123, 1.0),
         secondaryHeaderColor: Color.fromRGBO(255, 88, 100, 1.0),
-        accentColor: Color.fromRGBO(255, 101, 91, 1.0)
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color.fromRGBO(253, 41, 123, 1.0),
+          secondary: Color.fromRGBO(255, 101, 91, 1.0),
+        ),
       ),
       home : SplashScreen(),
     );

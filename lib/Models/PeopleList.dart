@@ -17,4 +17,25 @@ List<MatchCard> peoples = [
       "Rissu Stelin", 'assets/images/person7.jpg', 23, 'Studying Aerospace 🛫'),
   MatchCard(
       "Rebicca", 'assets/images/person8.jpg', 24, 'MIT Open Courseware 📚'),
+  // New Fake Users
+  MatchCard(
+      "Sarah Jenkins", 'assets/images/person1.jpg', 22, 'UX Designer 🎨'),
+  MatchCard(
+      "Michael Chen", 'assets/images/person2.jpg', 27, 'Product Manager 📱'),
+  MatchCard(
+      "Emma Wilson", 'assets/images/person3.jpg', 24, 'Data Scientist 📊'),
+  MatchCard(
+      "David Miller", 'assets/images/person4.jpg', 29, 'Cloud Architect ☁️'),
+  MatchCard(
+      "Olivia Taylor", 'assets/images/person5.jpg', 25, 'Digital Nomad 🌍'),
+  MatchCard(
+      "James Anderson", 'assets/images/person6.jpg', 30, 'Blockchain Dev ⛓️'),
+  MatchCard(
+      "Sophia Martinez", 'assets/images/person7.jpg', 23, 'Art Student 🎭'),
+  MatchCard(
+      "Daniel Lee", 'assets/images/person8.jpg', 28, 'Fitness Coach 💪'),
+  MatchCard(
+      "Isabella Garcia", 'assets/images/person1.jpg', 26, 'Travel Blogger ✈️'),
+  MatchCard(
+      "Lucas Brown", 'assets/images/person2.jpg', 25, 'Chef 👨‍🍳'),
 ];

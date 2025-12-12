@@ -1,0 +1,20 @@
+DROP TABLE IF EXISTS messages;
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  image_url VARCHAR(255),
+  age INT,
+  profession VARCHAR(100),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE messages (
+  id SERIAL PRIMARY KEY,
+  sender_id INT REFERENCES users(id),
+  receiver_id INT REFERENCES users(id),
+  content TEXT NOT NULL,
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  is_seen BOOLEAN DEFAULT FALSE
+);

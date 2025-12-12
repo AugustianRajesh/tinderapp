@@ -9,15 +9,15 @@ class ChatUser {
   bool received;
   int newMessages;
   ChatUser(
-      {this.name,
-      this.imageURL,
-      this.message,
-      this.date,
-      this.time,
-      this.seen,
-      this.sent,
-      this.received,
-      this.newMessages});
+      {required this.name,
+      required this.imageURL,
+      required this.message,
+      required this.date,
+      required this.time,
+      required this.seen,
+      required this.sent,
+      required this.received,
+      required this.newMessages});
 }
 
 List<ChatUser> dummyMsg = [

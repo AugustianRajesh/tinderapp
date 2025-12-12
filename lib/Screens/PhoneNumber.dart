@@ -25,8 +25,9 @@ class PhoneNumberScreen extends StatelessWidget {
           children: <Widget>[
             new Expanded(
                 flex: 5,
-                child: new Column(
-                  children: <Widget>[
+                child: SingleChildScrollView(
+                  child: new Column(
+                    children: <Widget>[
                     new Align(
                       alignment: Alignment.topLeft,
                       child: new Text(
@@ -92,7 +93,7 @@ class PhoneNumberScreen extends StatelessWidget {
                             borderRadius: new BorderRadius.circular(90.0),
                             gradient: new LinearGradient(
                                 colors: [
-                                  Theme.of(context).accentColor,
+                                  Theme.of(context).colorScheme.secondary,
                                   Theme.of(context).secondaryHeaderColor,
                                   Theme.of(context).primaryColor
                                 ],
@@ -112,9 +113,10 @@ class PhoneNumberScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                    )
+                    ),
                   ],
-                )),
+                ),
+              ),),
           ],
         ),
       ),
