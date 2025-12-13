@@ -8,6 +8,8 @@ class ChatUser {
   bool sent;
   bool received;
   int newMessages;
+  int id; // Added ID field
+  
   ChatUser(
       {required this.name,
       required this.imageURL,
@@ -17,7 +19,8 @@ class ChatUser {
       required this.seen,
       required this.sent,
       required this.received,
-      required this.newMessages});
+      required this.newMessages,
+      this.id = 0}); // Default to 0 for dummy data
 }
 
 List<ChatUser> dummyMsg = [

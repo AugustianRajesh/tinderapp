@@ -35,4 +35,38 @@ class ApiService {
       return []; // Return empty list on error
     }
   }
+
+  // Fetch conversation with a specific user
+  static Future<List<dynamic>> fetchMessages(int otherUserId) async {
+    try {
+      final response = await http.get(Uri.parse('$_baseUrl/messages/$otherUserId'));
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+         if (kDebugMode) print('Failed to load messages: ${response.statusCode}');
+         return [];
+      }
+    } catch (e) {
+      if (kDebugMode) print('Error fetching messages: $e');
+      return [];
+    }
+  }
+
+  // Send a message
+  static Future<bool> sendMessage(int receiverId, String content) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/messages'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'receiver_id': receiverId,
+          'content': content,
+        }),
+      );
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      if (kDebugMode) print('Error sending message: $e');
+      return false;
+    }
+  }
 }

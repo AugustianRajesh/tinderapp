@@ -21,20 +21,75 @@ app.get('/api/users', async (req, res) => {
 });
 
 // GET /api/messages - Fetch all conversations (unique users)
+// GET /api/messages - Fetch all conversations (unique users)
 app.get('/api/messages', async (req, res) => {
     try {
-        // Logic: Get users who have exchanged messages
-        // For simplicity, just returning all messages join with users
         const query = `
-        SELECT m.*, u.name, u.image_url 
+        SELECT DISTINCT ON (
+            LEAST(m.sender_id, m.receiver_id), 
+            GREATEST(m.sender_id, m.receiver_id)
+        ) 
+        m.id, m.sender_id, m.receiver_id, m.content, m.timestamp,
+        CASE 
+            WHEN m.sender_id = 1 THEN u_recv.name 
+            ELSE u_send.name 
+        END as name,
+        CASE 
+            WHEN m.sender_id = 1 THEN u_recv.image_url 
+            ELSE u_send.image_url 
+        END as image_url,
+        CASE 
+            WHEN m.sender_id = 1 THEN u_recv.id 
+            ELSE u_send.id 
+        END as other_user_id
         FROM messages m
-        JOIN users u ON (m.sender_id = u.id OR m.receiver_id = u.id)
-        WHERE u.id != 1 -- assuming current user is ID 1
-        ORDER BY m.timestamp DESC
+        LEFT JOIN users u_send ON m.sender_id = u_send.id
+        LEFT JOIN users u_recv ON m.receiver_id = u_recv.id
+        WHERE m.sender_id = 1 OR m.receiver_id = 1
+        ORDER BY 
+            LEAST(m.sender_id, m.receiver_id), 
+            GREATEST(m.sender_id, m.receiver_id),
+            m.timestamp DESC
       `;
-        // This is a simplified query.
-        const { rows } = await db.query('SELECT * FROM messages');
+        const { rows } = await db.query(query);
         res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// GET /api/messages/:userId - Get conversation with specific user
+app.get('/api/messages/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const currentUserId = 1; // Hardcoded for demo
+
+        const query = `
+            SELECT * FROM messages 
+            WHERE (sender_id = $1 AND receiver_id = $2)
+            OR (sender_id = $2 AND receiver_id = $1)
+            ORDER BY timestamp ASC
+        `;
+        const { rows } = await db.query(query, [currentUserId, userId]);
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// POST /api/messages - Send a message
+app.post('/api/messages', async (req, res) => {
+    try {
+        const { receiver_id, content } = req.body;
+        const sender_id = 1; // Hardcoded for demo
+
+        const { rows } = await db.query(
+            'INSERT INTO messages (sender_id, receiver_id, content) VALUES ($1, $2, $3) RETURNING *',
+            [sender_id, receiver_id, content]
+        );
+        res.json(rows[0]);
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Server error' });

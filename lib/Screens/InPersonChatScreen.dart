@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tinder_clone/Models/ChatUser.dart';
 import 'package:tinder_clone/Models/Message.dart';
+import 'package:tinder_clone/Services/api_service.dart';
+import 'dart:async';
 
 class InChatScreen extends StatefulWidget {
   ChatUser user;
@@ -14,10 +16,67 @@ class InChatScreen extends StatefulWidget {
 
 class _InChatScreenState extends State<InChatScreen> {
   late TextEditingController _messageController;
+  List<Message> _messages = [];
+  Timer? _timer;
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
     _messageController = new TextEditingController();
+    _fetchMessages();
+    // Poll for new messages every 3 seconds
+    _timer = Timer.periodic(Duration(seconds: 3), (timer) {
+      _fetchMessages();
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _messageController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchMessages() async {
+    // Assuming current user ID is 1, so we need the other user's ID
+    if (widget.user.id == 0) return; // Skip if dummy user without ID
+
+    final data = await ApiService.fetchMessages(widget.user.id);
+    if (mounted) {
+      setState(() {
+        _messages = data.map((json) => Message.fromJson(json, 1)).toList(); // 1 is current user ID
+      });
+      // Scroll to bottom on initial load or new message? 
+      // Simplified: Just update list. User can scroll.
+    }
+  }
+
+  Future<void> _sendMessage() async {
+    if (_messageController.text.trim().isEmpty) return;
+    
+    final content = _messageController.text;
+    _messageController.clear();
+
+    // Optimistically add message
+    final now = DateTime.now();
+    final timeStr = "${now.hour}:${now.minute.toString().padLeft(2, '0')}";
+    setState(() {
+      _messages.add(Message(content, timeStr, false, false, true, true));
+    });
+    // Scroll to bottom
+    if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    }
+
+    final success = await ApiService.sendMessage(widget.user.id, content);
+    if (!success) {
+      // Handle error (maybe show snackbar or remove message)
+      print("Failed to send message");
+    } else {
+        _fetchMessages(); // Refresh to get server timestamp/ID
+    }
   }
 
   @override
@@ -102,24 +161,18 @@ class _InChatScreenState extends State<InChatScreen> {
                     right: ScreenUtil().setWidth(20.0),
                   ),
                   child: new ListView.builder(
-                    itemCount: msgs.length,
-                    reverse: true,
+                    controller: _scrollController,
+                    itemCount: _messages.length,
+                    reverse: false, // Changed to natural order
                     itemBuilder: (context, index) {
-                      return msgs[index].isMe
+                      final msg = _messages[index];
+                      return msg.isMe
                           ? new Bubble(
                               margin: BubbleEdges.only(
-                                  top: (index < msgs.length - 1 &&
-                                          msgs[index + 1].isMe)
-                                      ? ScreenUtil().setHeight(5.0)
-                                      : ScreenUtil().setHeight(20.0),
+                                  top: ScreenUtil().setHeight(10.0),
                                   left: ScreenUtil().setWidth(100.0),
-                                  bottom: index == 0
-                                      ? ScreenUtil().setHeight(10.0)
-                                      : ScreenUtil().setHeight(0.0)),
-                              nip: (index < msgs.length - 2 &&
-                                      msgs[index + 1].isMe)
-                                  ? BubbleNip.no
-                                  : BubbleNip.rightBottom,
+                                  bottom: ScreenUtil().setHeight(10.0)),
+                              nip: BubbleNip.rightBottom,
                               nipRadius: ScreenUtil().setWidth(11),
                               color: Colors.blue.shade300,
                               style: new BubbleStyle(
@@ -130,7 +183,7 @@ class _InChatScreenState extends State<InChatScreen> {
                               alignment: Alignment.centerRight,
                               elevation: 0.4,
                               child: new Text(
-                                msgs[index].msg,
+                                msg.msg,
                                 style: new TextStyle(
                                     color: Colors.white,
                                     fontSize: ScreenUtil().setSp(43),
@@ -139,15 +192,10 @@ class _InChatScreenState extends State<InChatScreen> {
                             )
                           : new Bubble(
                               margin: BubbleEdges.only(
-                                  top: (index < msgs.length - 2 &&
-                                          msgs[index + 1].isMe)
-                                      ? ScreenUtil().setHeight(20.0)
-                                      : ScreenUtil().setHeight(5.0),
-                                  right: ScreenUtil().setWidth(100.0)),
-                              nip: (index < msgs.length - 2 &&
-                                      !msgs[index + 1].isMe)
-                                  ? BubbleNip.no
-                                  : BubbleNip.leftBottom,
+                                  top: ScreenUtil().setHeight(10.0),
+                                  right: ScreenUtil().setWidth(100.0),
+                                  bottom: ScreenUtil().setHeight(10.0)),
+                              nip: BubbleNip.leftBottom,
                               color: Colors.blueGrey.shade50,
                               nipHeight: ScreenUtil().setHeight(20),
                               nipWidth: ScreenUtil().setWidth(23),
@@ -158,7 +206,7 @@ class _InChatScreenState extends State<InChatScreen> {
                               alignment: Alignment.centerLeft,
                               elevation: 0.4,
                               child: new Text(
-                                msgs[index].msg,
+                                msg.msg,
                                 style: new TextStyle(
                                     color: Colors.black87,
                                     fontSize: ScreenUtil().setSp(43),
@@ -235,7 +283,9 @@ class _InChatScreenState extends State<InChatScreen> {
                     ),
                     new Expanded(
                         flex: 1,
-                        child: new Container(
+                        child: GestureDetector(
+                           onTap: _sendMessage,
+                           child: new Container(
                             height: double.infinity,
                             decoration: new BoxDecoration(
                                 color: Colors.blue.shade300,
@@ -246,7 +296,7 @@ class _InChatScreenState extends State<InChatScreen> {
                                 size: ScreenUtil().setSp(70.0),
                                 color: Colors.white,
                               ),
-                            )))
+                            ))))
                   ],
                 ),
               ),

@@ -6,8 +6,28 @@ class Message {
   final bool seen;
   final bool received;
   final bool sent;
-  final bool isMe ;
+  final bool isMe;
+  
   Message(this.msg, this.time, this.seen, this.received, this.sent, this.isMe);
+
+  factory Message.fromJson(Map<String, dynamic> json, int currentUserId) {
+    bool isMe = json['sender_id'] == currentUserId;
+    // Basic time formatting
+    String timeStr = json['timestamp'] ?? '';
+    try {
+       DateTime dt = DateTime.parse(timeStr).toLocal();
+       timeStr = "${dt.hour}:${dt.minute.toString().padLeft(2, '0')}";
+    } catch (e) {}
+
+    return Message(
+      json['content'] ?? '',
+      timeStr,
+      json['is_seen'] ?? false,
+      !isMe, // received
+      isMe,  // sent
+      isMe,
+    );
+  }
 }
 
 List<Message> msgs = [
