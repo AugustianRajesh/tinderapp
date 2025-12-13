@@ -9,6 +9,7 @@ const users = [
     { name: "Christina", image: 'assets/images/person6.jpg', age: 34, profession: 'Developer Advocate 👔' },
     { name: "Rissu Stelin", image: 'assets/images/person7.jpg', age: 23, profession: 'Studying Aerospace 🛫' },
     { name: "Rebicca", image: 'assets/images/person8.jpg', age: 24, profession: 'MIT Open Courseware 📚' },
+    { name: "Rebicca", image: 'assets/images/person8.jpg', age: 24, profession: 'MIT Open Courseware 📚' },
     // New users 
     { name: "Sarah Jenkins", image: 'assets/images/person1.jpg', age: 22, profession: 'UX Designer 🎨' },
     { name: "Michael Chen", image: 'assets/images/person2.jpg', age: 27, profession: 'Product Manager 📱' },
@@ -22,13 +23,33 @@ const users = [
     { name: "Lucas Brown", image: 'assets/images/person2.jpg', age: 25, profession: 'Chef 👨‍🍳' }
 ];
 
+// Helper to generate random coordinates around NYC (40.7128, -74.0060)
+// Radius approx 0.1 degree (~7 miles)
+function getRandomLocation() {
+    const latBase = 40.7128;
+    const lonBase = -74.0060;
+    const latOffset = (Math.random() * 0.2) - 0.1;
+    const lonOffset = (Math.random() * 0.2) - 0.1;
+    return {
+        latitude: latBase + latOffset,
+        longitude: lonBase + lonOffset
+    };
+}
+
+// Add location to users
+users.forEach(user => {
+    const loc = getRandomLocation();
+    user.latitude = loc.latitude;
+    user.longitude = loc.longitude;
+});
+
 async function seed() {
     try {
         console.log('Seeding users...');
         for (const user of users) {
             await db.query(
-                'INSERT INTO users (name, image_url, age, profession) VALUES ($1, $2, $3, $4)',
-                [user.name, user.image, user.age, user.profession]
+                'INSERT INTO users (name, image_url, age, profession, latitude, longitude) VALUES ($1, $2, $3, $4, $5, $6)',
+                [user.name, user.image, user.age, user.profession, user.latitude, user.longitude]
             );
         }
         console.log('Seeding completed!');

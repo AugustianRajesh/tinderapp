@@ -41,6 +41,42 @@ app.get('/api/messages', async (req, res) => {
     }
 });
 
+// GET /api/users/nearby - Find users within radius
+app.get('/api/users/nearby', async (req, res) => {
+    try {
+        const { lat, lon, radius = 5 } = req.query;
+
+        if (!lat || !lon) {
+            return res.status(400).json({ error: 'Latitude and Longitude are required' });
+        }
+
+        // Haversine formula for distance in miles (3959 is Earth's radius in miles)
+        const query = `
+            SELECT id, name, image_url, age, profession, latitude, longitude,
+            (
+                3959 * acos(
+                    cos(radians($1)) * cos(radians(latitude)) * cos(radians(longitude) - radians($2)) +
+                    sin(radians($1)) * sin(radians(latitude))
+                )
+            ) AS distance
+            FROM users
+            WHERE (
+                3959 * acos(
+                    cos(radians($1)) * cos(radians(latitude)) * cos(radians(longitude) - radians($2)) +
+                    sin(radians($1)) * sin(radians(latitude))
+                )
+            ) < $3
+            ORDER BY distance ASC
+        `;
+
+        const { rows } = await db.query(query, [lat, lon, radius]);
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

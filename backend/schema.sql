@@ -7,7 +7,9 @@ CREATE TABLE users (
   image_url VARCHAR(255),
   age INT,
   profession VARCHAR(100),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  latitude DECIMAL(10, 8),
+  longitude DECIMAL(11, 8)
 );
 
 CREATE TABLE messages (
