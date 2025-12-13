@@ -9,7 +9,8 @@ CREATE TABLE users (
   profession VARCHAR(100),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   latitude DECIMAL(10, 8),
-  longitude DECIMAL(11, 8)
+  longitude DECIMAL(11, 8),
+  preferences JSONB
 );
 
 CREATE TABLE messages (

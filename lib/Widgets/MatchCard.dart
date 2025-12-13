@@ -8,15 +8,37 @@ class MatchCard extends StatefulWidget {
   final String imageURL;
   final int age;
   final String bio;
+  final Map<String, dynamic> preferences;
 
-  MatchCard(@required this.name, @required this.imageURL, @required this.age,
-      @required this.bio);
+  MatchCard(
+      @required this.name,
+      @required this.imageURL,
+      @required this.age,
+      @required this.bio,
+      this.preferences = const {} // Default empty
+      );
 
   @override
   _MatchCardState createState() => _MatchCardState();
 }
 
 class _MatchCardState extends State<MatchCard> {
+  List<Widget> _buildInterestChips() {
+    List<Widget> chips = [];
+    if (widget.preferences['hobbies'] != null) {
+      for (var item in widget.preferences['hobbies']) {
+        chips.add(Chip(
+          label: Text(item, style: TextStyle(fontSize: 10)),
+          padding: EdgeInsets.zero,
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          backgroundColor: Colors.white.withOpacity(0.8),
+        ));
+      }
+    }
+    // Limit to a few tags to avoid overflow
+    return chips.take(4).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -107,6 +129,31 @@ class _MatchCardState extends State<MatchCard> {
                       fontSize: ScreenUtil().setSp(55.0),
                       fontWeight: FontWeight.w400),
                 ),
+                new SizedBox(
+                  height: ScreenUtil().setHeight(10.0),
+                ),
+                new Text(
+                  widget.bio,
+                  style: new TextStyle(
+                      color: Colors.white,
+                      shadows: [
+                        new Shadow(
+                            color: Colors.black54,
+                            offset: new Offset(1.0, 2.0),
+                            blurRadius: 10.0)
+                      ],
+                      fontSize: ScreenUtil().setSp(55.0),
+                      fontWeight: FontWeight.w400),
+                ),
+                new SizedBox(height: ScreenUtil().setHeight(10.0)),
+                // Display Interests
+                if (widget.preferences.isNotEmpty) ...[
+                   Wrap(
+                     spacing: 4.0,
+                     runSpacing: 0.0,
+                     children: _buildInterestChips(),
+                   )
+                ]
               ],
             ),
           ),

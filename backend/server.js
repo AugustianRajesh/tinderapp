@@ -107,7 +107,7 @@ app.get('/api/users/nearby', async (req, res) => {
 
         // Haversine formula for distance in miles (3959 is Earth's radius in miles)
         const query = `
-            SELECT id, name, image_url, age, profession, latitude, longitude,
+            SELECT id, name, image_url, age, profession, latitude, longitude, preferences,
             (
                 3959 * acos(
                     cos(radians($1)) * cos(radians(latitude)) * cos(radians(longitude) - radians($2)) +

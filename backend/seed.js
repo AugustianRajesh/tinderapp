@@ -36,11 +36,31 @@ function getRandomLocation() {
     };
 }
 
-// Add location to users
+// Helper to generate random interests
+function getRandomPreferences() {
+    const music = ['Rock', 'Jazz', 'Pop', 'Hip Hop', 'Classical', 'Indie', 'Techno'];
+    const movies = ['Action', 'Sci-Fi', 'Comedy', 'Drama', 'Horror', 'Documentary'];
+    const hobbies = ['Travel', 'Photography', 'Cooking', 'Gaming', 'Reading', 'Hiking', 'Fitness'];
+
+    const getRandomItems = (arr, count) => {
+        const shuffled = arr.sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, count);
+    };
+
+    return {
+        music: getRandomItems(music, 3),
+        movies: getRandomItems(movies, 2),
+        hobbies: getRandomItems(hobbies, 3),
+        about: "I love exploring new places and meeting new people!"
+    };
+}
+
+// Add location and preferences to users
 users.forEach(user => {
     const loc = getRandomLocation();
     user.latitude = loc.latitude;
     user.longitude = loc.longitude;
+    user.preferences = getRandomPreferences();
 });
 
 async function seed() {
@@ -48,8 +68,8 @@ async function seed() {
         console.log('Seeding users...');
         for (const user of users) {
             await db.query(
-                'INSERT INTO users (name, image_url, age, profession, latitude, longitude) VALUES ($1, $2, $3, $4, $5, $6)',
-                [user.name, user.image, user.age, user.profession, user.latitude, user.longitude]
+                'INSERT INTO users (name, image_url, age, profession, latitude, longitude, preferences) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+                [user.name, user.image, user.age, user.profession, user.latitude, user.longitude, JSON.stringify(user.preferences)]
             );
         }
         console.log('Seeding completed!');

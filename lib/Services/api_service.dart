@@ -23,6 +23,7 @@ class ApiService {
             json['image_url'] ?? 'assets/images/person1.jpg',
             json['age'] ?? 18,
             json['profession'] ?? '',
+            json['preferences'] ?? {},
           );
         }).toList();
       } else {
